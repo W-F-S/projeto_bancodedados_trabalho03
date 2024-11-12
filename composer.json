@@ -1,0 +1,16 @@
+{
+    "name": "walker/cmp1611_trabalho_03",
+    "description": "trabalho_03 banco de dados",
+    "autoload": {
+        "psr-4": {
+            "Walker\\Cmp1611Trabalho03\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "W-F-S",
+            "email": "walkerfreitassantos@gmail.com"
+        }
+    ],
+    "require": {}
+}
