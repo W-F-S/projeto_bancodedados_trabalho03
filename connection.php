@@ -362,7 +362,8 @@ ALTER TABLE ONLY public.frete
 SQL;
 
 // Execute the SQL query
-$result = pg_query($dbconn, $sql);
+$result;
+//$result = pg_query($dbconn, $sql);
 
 if (!$result) {
     echo "Error in table creation: " . pg_last_error();
