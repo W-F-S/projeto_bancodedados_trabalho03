@@ -362,13 +362,13 @@ ALTER TABLE ONLY public.frete
 SQL;
 
 // Remove todas as tabelas e registros do banco
-pg_query($dbconn, "DO $$ DECLARE
-    rec RECORD;
-BEGIN
-    FOR rec IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
-        EXECUTE 'DROP TABLE IF EXISTS ' || rec.tablename || ' CASCADE';
-    END LOOP;
-END $$;");
+//  pg_query($dbconn, "DO $$ DECLARE
+//      rec RECORD;
+//  BEGIN
+//      FOR rec IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+//          EXECUTE 'DROP TABLE IF EXISTS ' || rec.tablename || ' CASCADE';
+//      END LOOP;
+//  END $$;");
 
 $result = pg_query($dbconn, $sql);
 

@@ -84,6 +84,45 @@
     </table>
 
     <script>
+        // Define deleteRecord outside the $(document).ready block
+        function deleteRecord(id) {
+            const tableName = $('#tableSelector').val();
+            if (confirm('Tem certeza que deseja excluir este registro?')) {
+                $.post('delete_record.php', { table: tableName, id: id }, function (response) {
+                    if (response.error) {
+                        alert(response.error);
+                    } else {
+                        alert(response.message);
+                        loadTableData(tableName);
+                    }
+                }, 'json').done(
+            
+                );
+            }
+
+        }
+
+                    // Função para carregar os dados da tabela selecionada
+                    function loadTableData(tableName) {
+                        console.log("loadTableData");
+                $.get(`get_table_data.php?table=${tableName}`, function (records) {
+                    const columns = Object.keys(records[0] || {});
+
+                    $('#dataTable thead').html('<tr>' + columns.map(col => `<th>${col}</th>`).join('') + '<th>Ações</th></tr>');
+
+                    $('#dataTable tbody').empty();
+
+                    console.log(records);
+                    records.forEach(record => {
+                        const row = columns.map(col => `<td>${record[col]}</td>`).join('');
+                        $('#dataTable tbody').append(`<tr>${row}<td>
+                    <button onclick="editRecord(${record.cod_cli})">Editar</button>
+                    <button onclick="deleteRecord(${record.cod_cli})">Excluir</button>
+                </td></tr>`);
+                    });
+                }, 'json');
+            }
+
         $(document).ready(function () {
             // Obtem os nomes das tabelas e popula o dropdown
             $.get('get_tables.php', function (tables) {
@@ -112,7 +151,7 @@
                             console.log(column); 
 
                             if(column.name=="tipo"){
-                                continue;
+
                             }else{
                                 $('#dynamicForm').append(`
                                     <label>${column.name} (${column.type}):</label>
@@ -142,6 +181,7 @@
                         const formData = $('#dynamicForm').serialize();
                         $.post('add_record.php', { table: $('#tableSelector').val(), data: formData }, function (response) {
                             if(response.error) {
+                                console.log(response);
                                 alert(response.error);
                             }
                             loadTableData($('#tableSelector').val());
@@ -150,24 +190,7 @@
                 }, 'json');
             }
 
-            // Função para carregar os dados da tabela selecionada
-            function loadTableData(tableName) {
-                $.get(`get_table_data.php?table=${tableName}`, function (records) {
-                    const columns = Object.keys(records[0] || {});
 
-                    $('#dataTable thead').html('<tr>' + columns.map(col => `<th>${col}</th>`).join('') + '<th>Ações</th></tr>');
-
-                    $('#dataTable tbody').empty();
-
-                    records.forEach(record => {
-                        const row = columns.map(col => `<td>${record[col]}</td>`).join('');
-                        $('#dataTable tbody').append(`<tr>${row}<td>
-                    <button onclick="editRecord(${record.id})">Editar</button>
-                    <button onclick="deleteRecord(${record.id})">Excluir</button>
-                </td></tr>`);
-                    });
-                }, 'json');
-            }
         });
 
     </script>
