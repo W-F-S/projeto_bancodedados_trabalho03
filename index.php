@@ -1,93 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Dynamic Multi-Table CRUD</title>
+    <title>SGBD</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-    <h1>Dynamic Multi-Table CRUD</h1>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
 
-    <!-- Dropdown to Select Table -->
-    <label>Select Table:</label>
+        h1 {
+            color: #333;
+        }
+
+        label,
+        select,
+        button,
+        form {
+            margin: 10px 0;
+        }
+
+        #dynamicForm {
+            margin: 20px auto;
+            display: inline-block;
+            text-align: left;
+        }
+
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        button {
+            padding: 5px 10px;
+            margin: 5px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>SGBD</h1>
+
+    <!-- Tabelas do banco -->
+    <label for="tableSelector">Escolha a tabela:</label>
     <select id="tableSelector">
-        <!-- Options will be loaded dynamically -->
     </select>
 
-    </br>
+    <br><br>
 
-    <!-- Form to add or edit records, dynamically generated -->
+    <!-- adicionar informacoes -->
     <form id="dynamicForm">
-        <!-- Form fields will be loaded based on selected table -->
     </form>
 
-    <!-- Table to display records, dynamically generated -->
-    <h2>Records</h2>
-    <table border="1" id="dataTable">
+    <!-- dados -->
+    <h2>Dados</h2>
+    <table id="dataTable">
         <thead></thead>
         <tbody></tbody>
     </table>
 
     <script>
-    $(document).ready(function () {
-        // Fetch table names and populate dropdown
-        $.get('get_tables.php', function (tables) {
-            tables.forEach(function (table) {
-                $('#tableSelector').append(`<option value="${table}">${table}</option>`);
-            });
-        }, 'json');
+        $(document).ready(function () {
+            // Obtem os nomes das tabelas e popula o dropdown
+            $.get('get_tables.php', function (tables) {
+                tables.forEach(function (table) {
+                    $('#tableSelector').append(`<option value="${table}">${table}</option>`);
+                });
+            }, 'json');
 
-        // Load table structure and data when a table is selected
-        $('#tableSelector').change(function () {
-            const tableName = $(this).val();
-            loadTableStructure(tableName);
-            loadTableData(tableName);
+            // Carrega a estrutura da tabela e os dados ao selecionar uma tabela
+            $('#tableSelector').change(function () {
+                const tableName = $(this).val(); 
+                loadTableStructure(tableName);   
+                loadTableData(tableName);       
+            });
+
+            // Função para carregar a estrutura da tabela selecionada
+            function loadTableStructure(tableName) {
+                $.get(`get_table_structure.php?table=${tableName}`, function (columns) {
+                    console.log("loadTableStructure"); 
+                    $('#dynamicForm').empty();
+
+                    console.log(columns);
+                    // Para cada coluna, cria um campo no formulário
+                    if(tableName == 'cliente') {
+                        columns.forEach(function (column) {
+                            console.log(column); 
+
+                            if(column.name=="tipo"){
+                                continue;
+                            }else{
+                                $('#dynamicForm').append(`
+                                    <label>${column.name} (${column.type}):</label>
+                                    <input type="text" name="${column.name}" required><br>
+                                `);
+                            }
+                        });    
+                    }else{
+                        columns.forEach(function (column) {
+                        console.log(column); 
+                        $('#dynamicForm').append(`
+                            <label>${column.name} (${column.type}):</label>
+                            <input type="text" name="${column.name}" required><br>
+                        `);
+
+                    });
+                    }
+                    
+
+                    // Adiciona um botão para adicionar um novo registro
+                    $('#dynamicForm').append(`
+                <button type="button" id="addBtn">Adicionar Registro</button>
+            `);
+
+                    // Associa o evento de clique ao botão "Adicionar Registro"
+                    $('#addBtn').click(function () {
+                        const formData = $('#dynamicForm').serialize();
+                        $.post('add_record.php', { table: $('#tableSelector').val(), data: formData }, function (response) {
+                            if(response.error) {
+                                alert(response.error);
+                            }
+                            loadTableData($('#tableSelector').val());
+                        }, 'json');
+                    });
+                }, 'json');
+            }
+
+            // Função para carregar os dados da tabela selecionada
+            function loadTableData(tableName) {
+                $.get(`get_table_data.php?table=${tableName}`, function (records) {
+                    const columns = Object.keys(records[0] || {});
+
+                    $('#dataTable thead').html('<tr>' + columns.map(col => `<th>${col}</th>`).join('') + '<th>Ações</th></tr>');
+
+                    $('#dataTable tbody').empty();
+
+                    records.forEach(record => {
+                        const row = columns.map(col => `<td>${record[col]}</td>`).join('');
+                        $('#dataTable tbody').append(`<tr>${row}<td>
+                    <button onclick="editRecord(${record.id})">Editar</button>
+                    <button onclick="deleteRecord(${record.id})">Excluir</button>
+                </td></tr>`);
+                    });
+                }, 'json');
+            }
         });
 
-        function loadTableStructure(tableName) {
-            $.get(`get_table_structure.php?table=${tableName}`, function (columns) {
-                console.log("loadTableStructure");
-                $('#dynamicForm').empty();  // Clear existing form fields
-                columns.forEach(function (column) {
-                    console.log(column);
-                    $('#dynamicForm').append(`
-                        <label>${column.name} (${column.type}):</label>
-                        <input type="text" name="${column.name}" required><br>
-                    `);
-                });
-                $('#dynamicForm').append(`
-                    <button type="button" id="addBtn">Add Record</button>
-                `);
-
-                // Attach click event for Add Record button after form generation
-                $('#addBtn').click(function () {
-                    const formData = $('#dynamicForm').serialize(); // Serialize form data
-                    $.post('add_record.php', { table: $('#tableSelector').val(), data: formData }, function (response) {
-                        alert(response.message);
-                        loadTableData($('#tableSelector').val()); // Refresh data
-                    }, 'json');
-                });
-            }, 'json');
-        }
-
-        function loadTableData(tableName) {
-            $.get(`get_table_data.php?table=${tableName}`, function (records) {
-                // Populate table headers
-                const columns = Object.keys(records[0] || {});
-                $('#dataTable thead').html('<tr>' + columns.map(col => `<th>${col}</th>`).join('') + '<th>Actions</th></tr>');
-
-                // Populate table rows
-                $('#dataTable tbody').empty();
-                records.forEach(record => {
-                    const row = columns.map(col => `<td>${record[col]}</td>`).join('');
-                    $('#dataTable tbody').append(`<tr>${row}<td>
-                        <button onclick="editRecord(${record.id})">Edit</button>
-                        <button onclick="deleteRecord(${record.id})">Delete</button>
-                    </td></tr>`);
-                });
-            }, 'json');
-        }
-    });
     </script>
 </body>
+
 </html>

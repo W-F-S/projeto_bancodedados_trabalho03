@@ -1,14 +1,14 @@
 <?php
 //https://www.php.net/manual/en/pgsql.examples-basic.php
 
+// Execute the SQL query
+$result = '';
 
-// Connecting, selecting database
 $dbconn = pg_connect("host=localhost dbname=bancodedados user=root password=1234")
     or die('Could not connect: ' . pg_last_error());
 
 echo 'Connected successfully';
 
-// SQL commands to create the schema and tables
 $sql = <<<SQL
 CREATE SCHEMA IF NOT EXISTS public;
 
@@ -361,9 +361,16 @@ ALTER TABLE ONLY public.frete
 --
 SQL;
 
-// Execute the SQL query
-$result;
-//$result = pg_query($dbconn, $sql);
+// Remove todas as tabelas e registros do banco
+pg_query($dbconn, "DO $$ DECLARE
+    rec RECORD;
+BEGIN
+    FOR rec IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+        EXECUTE 'DROP TABLE IF EXISTS ' || rec.tablename || ' CASCADE';
+    END LOOP;
+END $$;");
+
+$result = pg_query($dbconn, $sql);
 
 if (!$result) {
     echo "Error in table creation: " . pg_last_error();
