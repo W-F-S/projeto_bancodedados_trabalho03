@@ -96,32 +96,106 @@
                         loadTableData(tableName);
                     }
                 }, 'json').done(
-            
+
                 );
             }
 
         }
 
-                    // Função para carregar os dados da tabela selecionada
-                    function loadTableData(tableName) {
-                        console.log("loadTableData");
-                $.get(`get_table_data.php?table=${tableName}`, function (records) {
-                    const columns = Object.keys(records[0] || {});
+        function editRecord(id) {
+            const tableName = $('#tableSelector').val();
+            $.get(`get_table_data.php?table=${tableName}&id=${id}`, function (record) {
+                if (!record) {
+                    alert("Erro ao obter os dados do registro.");
+                    return;
+                }
+                console.log("editRecord");
+                console.log(record);
 
-                    $('#dataTable thead').html('<tr>' + columns.map(col => `<th>${col}</th>`).join('') + '<th>Ações</th></tr>');
+                $('#dynamicForm').empty(); // Clear existing form
+                record = record[0];
+                const columns = Object.keys(record);
 
-                    $('#dataTable tbody').empty();
+                // Populate form fields with existing data
+                columns.forEach(column => {
+                    $('#dynamicForm').append(`
+                <label>${column}:</label>
+                <input type="text" name="${column}" value="${record[column]}" required><br>
+            `);
+                });
 
-                    console.log(records);
+                // Add Save Changes button
+                $('#dynamicForm').append(`
+            <button type="button" id="saveBtn">Salvar Alterações</button>
+        `);
+
+                // Handle Save Changes click
+                $('#saveBtn').click(function () {
+                    const formData = $('#dynamicForm').serialize(); // Serialize form data
+                    $.post('edit_record.php', { table: tableName, id: id, data: formData }, function (response) {
+                        if (response.error) {
+                            alert(response.error);
+                        } else {
+                            alert(response.message);
+                            loadTableData(tableName); // Reload table data
+                        }
+                    }, 'json');
+                });
+            }, 'json');
+        }
+
+
+        function loadTableData(tableName) {
+            console.log("loadTableData");
+            $.get(`get_table_data.php?table=${tableName}`, function (records) {
+                const columns = Object.keys(records[0] || {});
+
+                $('#dataTable thead').html('<tr>' + columns.map(col => `<th>${col}</th>`).join('') + '<th>Ações</th></tr>');
+
+                $('#dataTable tbody').empty();
+
+                console.log(records);
+                if(tableName == 'cliente'){
+                    records.forEach(record => {
+                    const row = columns.map(col => `<td>${record[col]}</td>`).join('');
+                    $('#dataTable tbody').append(`
+                    <tr>${row}<td>
+                        <button onclick="editRecord(${record.cod_cli})">Editar</button>
+                        <button onclick="deleteRecord(${record.cod_cli})">Excluir</button>
+                    </td></tr>`);
+                    });                    
+                }else if(tableName == 'frete'){
+                    records.forEach(record => {
+                    const row = columns.map(col => `<td>${record[col]}</td>`).join('');
+                    $('#dataTable tbody').append(`
+                    <tr>${row}<td>
+                        <button onclick="editRecord(${record.id_frete})">Editar</button>
+                        <button onclick="deleteRecord(${record.id_frete})">Excluir</button>
+                    </td></tr>`);
+                    }); 
+                }else if(tableName == 'estado'){
                     records.forEach(record => {
                         const row = columns.map(col => `<td>${record[col]}</td>`).join('');
-                        $('#dataTable tbody').append(`<tr>${row}<td>
-                    <button onclick="editRecord(${record.cod_cli})">Editar</button>
-                    <button onclick="deleteRecord(${record.cod_cli})">Excluir</button>
-                </td></tr>`);
+                        $('#dataTable tbody').append(`
+                        <tr>${row}<td>
+                            <button onclick="editRecord('${record.uf}')">Editar</button>
+                            <button onclick="deleteRecord('${record.uf}')">Excluir</button>
+                        </td></tr>`);
                     });
-                }, 'json');
-            }
+                }else{                  
+                    records.forEach(record => {
+                        const row = columns.map(col => `<td>${record[col]}</td>`).join('');
+                        $('#dataTable tbody').append(`
+                        <tr>${row}<td>
+                            <button onclick="editRecord('${record.cod_cli}')">Editar</button>
+                            <button onclick="deleteRecord('${record.cod_cli}')">Excluir</button>
+                        </td></tr>`);
+                    });
+                }
+                
+            }, 'json');
+        }
+
 
         $(document).ready(function () {
             // Obtem os nomes das tabelas e popula o dropdown
@@ -133,43 +207,43 @@
 
             // Carrega a estrutura da tabela e os dados ao selecionar uma tabela
             $('#tableSelector').change(function () {
-                const tableName = $(this).val(); 
-                loadTableStructure(tableName);   
-                loadTableData(tableName);       
+                const tableName = $(this).val();
+                loadTableStructure(tableName);
+                loadTableData(tableName);
             });
 
             // Função para carregar a estrutura da tabela selecionada
             function loadTableStructure(tableName) {
                 $.get(`get_table_structure.php?table=${tableName}`, function (columns) {
-                    console.log("loadTableStructure"); 
+                    console.log("loadTableStructure");
                     $('#dynamicForm').empty();
 
                     console.log(columns);
                     // Para cada coluna, cria um campo no formulário
-                    if(tableName == 'cliente') {
+                    if (tableName == 'cliente') {
                         columns.forEach(function (column) {
-                            console.log(column); 
+                            console.log(column);
 
-                            if(column.name=="tipo"){
+                            if (column.name == "tipo") {
 
-                            }else{
+                            } else {
                                 $('#dynamicForm').append(`
                                     <label>${column.name} (${column.type}):</label>
                                     <input type="text" name="${column.name}" required><br>
                                 `);
                             }
-                        });    
-                    }else{
+                        });
+                    } else {
                         columns.forEach(function (column) {
-                        console.log(column); 
-                        $('#dynamicForm').append(`
+                            console.log(column);
+                            $('#dynamicForm').append(`
                             <label>${column.name} (${column.type}):</label>
                             <input type="text" name="${column.name}" required><br>
                         `);
 
-                    });
+                        });
                     }
-                    
+
 
                     // Adiciona um botão para adicionar um novo registro
                     $('#dynamicForm').append(`
@@ -180,7 +254,7 @@
                     $('#addBtn').click(function () {
                         const formData = $('#dynamicForm').serialize();
                         $.post('add_record.php', { table: $('#tableSelector').val(), data: formData }, function (response) {
-                            if(response.error) {
+                            if (response.error) {
                                 console.log(response);
                                 alert(response.error);
                             }
