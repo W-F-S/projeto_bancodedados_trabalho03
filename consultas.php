@@ -49,10 +49,10 @@
     <p>Bem-vindo! Escolha uma das páginas abaixo para realizar consultas específicas no banco de dados:</p>
 
     <ul>
-        <li><a href="pagina1.html">Consulta 1</a></li>
-        <li><a href="pagina2.html">Consulta 2</a></li>
-        <li><a href="pagina3.html">Consulta 3</a></li>
-        <li><a href="pagina4.html">Consulta 4</a></li>
+        <li><a href="./consultas/01_arrecadacao_frete.php">Consulta 1</a></li>
+        <li><a href="./consultas/02_html">Consulta 2</a></li>
+        <li><a href="./consultas/03_html">Consulta 3</a></li>
+        <li><a href="./consultas/.04_html">Consulta 4</a></li>
     </ul>
 
     <footer>

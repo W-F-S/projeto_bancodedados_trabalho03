@@ -222,6 +222,12 @@ INSERT INTO public.estado VALUES ('TO', 'Tocantins', 18, 12);
 INSERT INTO public.frete VALUES ('Remetente', 'Peso', 150.5, 1200.75, 50, 204.75, '2024-10-01', 1, 1, 2, 1, 2, 500, 26);
 INSERT INTO public.frete VALUES ('Destinatario', 'Peso', 10.5, 321.75, 10, 204.75, '2024-10-12', 3, 2, 4, 3, 1, 100, 27);
 INSERT INTO public.frete VALUES ('Destinatario', 'Peso', 50.5, 10.75, 1, 203.75, '2024-10-25', 1, 3, 5, 1, 4, 50, 29);
+INSERT INTO public.frete VALUES ('Destinatario', 'Peso', 50.5, 10.75, 1, 203.75, '2024-10-25', 1, 3, 5, 1, 4, 50, 30);
+INSERT INTO public.frete VALUES ('Destinatario', 'Peso', 50.5, 10.75, 1, 203.75, '2024-10-25', 1, 3, 5, 1, 4, 50, 31);
+INSERT INTO public.frete VALUES ('Destinatario', 'Peso', 50.5, 10.75, 1, 203.75, '2024-10-25', 1, 3, 5, 1, 4, 50, 32);
+INSERT INTO public.frete VALUES ('Destinatario', 'Peso', 50.5, 10.75, 1, 203.75, '2024-10-25', 1, 3, 5, 1, 4, 50, 33);
+INSERT INTO public.frete VALUES ('Destinatario', 'Peso', 50.5, 10.75, 1, 203.75, '2024-10-25', 1, 3, 5, 1, 4, 50, 34);
+INSERT INTO public.frete VALUES ('Destinatario', 'Peso', 50.5, 10.75, 1, 203.75, '2024-10-25', 1, 3, 5, 1, 4, 50, 35);
 INSERT INTO public.frete VALUES ('Destinatario', 'Valor', 50.5, 10.75, 1, 203.75, '2024-10-25', 1, 3, 5, 1, 4, 50, 28);
 --
 -- TOC entry 3464 (class 0 OID 16590)

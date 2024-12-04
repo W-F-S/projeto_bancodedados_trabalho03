@@ -1,6 +1,3 @@
-<?php
-
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,38 +17,15 @@
         }
 
         label,
-        select,
-        button,
-        form {
+        input,
+        button {
             margin: 10px 0;
-        }
-
-        #dynamicForm {
-            margin: 20px auto;
-            display: inline-block;
-            text-align: left;
-        }
-
-        table {
-            margin: 20px auto;
-            border-collapse: collapse;
-            width: 80%;
-        }
-
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #f4f4f4;
+            display: block;
         }
 
         button {
             padding: 5px 10px;
-            margin: 5px;
+            margin: 5px auto;
             background-color: #007BFF;
             color: #fff;
             border: none;
@@ -65,10 +39,41 @@
     </style>
 </head>
 
-<label>${column.name} (${column.type}):</label>
-<input type="text" name="${column.name}" required><br>
+<body>
+    <h1>Arrecadação com Fretes</h1>
 
+    <label for="estado">Estado:</label>
+    <input type="text" id="cidade" name="cidade" placeholder="Informe o estado" required>
+    <button id="sendRequest">Consultar</button>
 
+    <script>
+        $(document).ready(function () {
+            // Evento para o botão
+            $('#sendRequest').click(function () {
+                // Captura o valor do campo 'estado'
+                const cidade = $('#cidade').val();
 
+                if (!cidade) {
+                    alert('Por favor, informe o estado.');
+                    return;
+                }
+
+                // Realiza o POST para a página 01_arrecadacao_frete_api.php
+                $.ajax({
+                    url: '01_arrecadacao_frete_api.php',
+                    type: 'POST',
+                    data: { cidade: cidade },
+                    success: function (response) {
+                        console.log('Resposta do servidor:', response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Erro:', error);
+                        console.error('Detalhes:', xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
 
 </html>
