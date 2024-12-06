@@ -16,91 +16,167 @@ $dbconn = pg_connect("host=localhost dbname=bancodedados user=root password=1234
 
 
 
-$cidade = $_POST['cidade']; //cidade ou estado
+$post_type = $_POST['query_type'];
 
-if (!$cidade) {
-    echo json_encode(['error' => 'Tabela, ID ou dados não especificados.']);
-    pg_close($dbconn);
-    exit();
-}
+if($post_type == "01"){
 
-try {
-    parse_str($data, $fields); // Parse serialized form data into an associative array
+    $tipoPesquisa = $_POST['tipoPesquisa'];
+    $input = $_POST['input']; //cidade ou estado
 
-
-    // Determine the ID column dynamically
-    $id_table = "id";
-    if ($table == "frete") {
-        $id_table = "id_frete";
-    } else if ($table == "cliente") {
-        $id_table = "cod_cli";
+    if (!$input || !$tipoPesquisa) {
+        echo json_encode(['error' => 'Tabela, ID ou dados não especificados.']);
+        pg_close($dbconn);
+        exit();
     }
-
-
-    // Define the search parameter (e.g., 'Goiânia')
-    $var_pesquisa = ["%$cidade%"];
-
-    // Perform the query using pg_query_params
-    $query = "SELECT * FROM cidade WHERE nome_cid LIKE $1";
-    $result = pg_query_params($dbconn, $query, $var_pesquisa);
-
-    if (!$result) {
-        throw new Exception('Erro ao realizar consulta: ' . pg_last_error($dbconn));
-    }
-
-    // Fetch all rows from the result
-    $data = pg_fetch_all($result);
-
-    $query= "
+    
+    try {
+        // Define the search parameter (e.g., 'Goiânia')
+    
+        $var_pesquisa = ["%$input%"];
+    
+        // Perform the query using pg_query_params
+        if ($tipoPesquisa == 'cidade') {
+            $query = "SELECT * FROM cidade WHERE nome_cid LIKE $1";
+        } else {
+            $query = "SELECT * FROM cidade WHERE fk_uf LIKE $1";
+        }
+    
+        $result = pg_query_params($dbconn, $query, $var_pesquisa);
+    
+        if (!$result) {
+            throw new Exception('Erro ao realizar consulta: ' . pg_last_error($dbconn));
+        }
+    
+        // Fetch all rows from the result
+        $data = pg_fetch_all($result);
+    
+        if ($tipoPesquisa == 'cidade') {
+            $var_pesquisa = $data[0]['codigo_cid'];
+    
+            $query = "
+                SELECT
+                    COUNT(f.id_frete) AS total_quantidade_fretes,
+                    SUM(f.valor_frete) as total_frete
+                FROM
+                    public.frete f
+                where
+                    fk_cod_cidade_destino = $var_pesquisa
+                    or
+                    fk_cod_cidade_origem = $var_pesquisa
+            ";
+        } else {
+            $var_pesquisa = [];
+            foreach ($data as $cidade) {
+                $var_pesquisa[] = $cidade['codigo_cid'];
+            }
+            $var_pesquisa = implode(',', $var_pesquisa);
+    
+      
+            $query = "
         SELECT
             COUNT(f.id_frete) AS total_quantidade_fretes,
-            SUM(f.valor_frete) as total_frete
-        FROM
-            public.frete f
-        where
-            fk_cod_cidade_destino =  or 
-            fk_cod_cidade_origem = 
-    ";
+            SUM(f.valor_frete) AS total_frete
+        FROM public.frete f
+        WHERE
+            fk_cod_cidade_destino in ($var_pesquisa)
+            OR fk_cod_cidade_origem in ($var_pesquisa)
+            ";
+        }
+    
+        $result = pg_query($dbconn, $query);
+    
+        if (!$result) {
+            echo "Erro no PostgreSQL: " . pg_last_error($dbconn);
+        }
+        $result = pg_fetch_all($result);
+        echo json_encode(value: ['dados' => $result]);
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    
+}elseif($post_type == "02"){
 
-    $result = pg_query_params($dbconn, $query, $var_pesquisa);
 
-    echo json_encode(value: ['aaa' => $data]);
+    $tipoPesquisa = $_POST['tipoPesquisa'];
+    $input = $_POST['input']; //cidade ou estado
 
-    /**
-    if (!$id_table) {
-        throw new Exception("ID Column is not set. Table: $table");
+    if (!$input || !$tipoPesquisa) {
+        echo json_encode(['error' => 'Tabela, ID ou dados não especificados.']);
+        pg_close($dbconn);
+        exit();
+    }
+    
+    try {
+        // Define the search parameter (e.g., 'Goiânia')
+    
+        $var_pesquisa = ["%$input%"];
+    
+        // Perform the query using pg_query_params
+        if ($tipoPesquisa == 'cidade') {
+            $query = "SELECT * FROM cidade WHERE nome_cid LIKE $1";
+        } else {
+            $query = "SELECT * FROM cidade WHERE fk_uf LIKE $1";
+        }
+    
+        $result = pg_query_params($dbconn, $query, $var_pesquisa);
+    
+        if (!$result) {
+            throw new Exception('Erro ao realizar consulta: ' . pg_last_error($dbconn));
+        }
+    
+        // Fetch all rows from the result
+        $data = pg_fetch_all($result);
+    
+        if ($tipoPesquisa == 'cidade') {
+            $var_pesquisa = $data[0]['codigo_cid'];
+    
+            $query = "
+                SELECT
+                    COUNT(f.id_frete) AS total_quantidade_fretes,
+                    SUM(f.valor_frete) as total_frete
+                FROM
+                    public.frete f
+                where
+                    fk_cod_cidade_destino = $var_pesquisa
+                    or
+                    fk_cod_cidade_origem = $var_pesquisa
+            ";
+        } else {
+            $var_pesquisa = [];
+            foreach ($data as $cidade) {
+                $var_pesquisa[] = $cidade['codigo_cid'];
+            }
+            $var_pesquisa = implode(',', $var_pesquisa);
+    
+      
+            $query = "
+        SELECT
+            COUNT(f.id_frete) AS total_quantidade_fretes,
+            SUM(f.valor_frete) AS total_frete
+        FROM public.frete f
+        WHERE
+            fk_cod_cidade_destino in ($var_pesquisa)
+            OR fk_cod_cidade_origem in ($var_pesquisa)
+            ";
+        }
+    
+        $result = pg_query($dbconn, $query);
+    
+        if (!$result) {
+            echo "Erro no PostgreSQL: " . pg_last_error($dbconn);
+        }
+        $result = pg_fetch_all($result);
+        echo json_encode(value: ['dados' => $result]);
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
     }
 
-    $setClauses = [];
-    $values = [];
-    $index = 1;
+}elseif($post_type == "03"){
 
-    foreach ($fields as $column => $value) {
-        $setClauses[] = "$column = \$$index";
-        $values[] = $value;
-        $index++;
-    }
+}else{
 
-    $setQuery = implode(", ", $setClauses);
-    $values[] = $id;
-
-    $query = "UPDATE $table SET $setQuery WHERE $id_table = \$$index";
-
-    // Debugging Logs
-    error_log("ID Column: " . $id_table);
-    error_log("Table: " . $table);
-    error_log("Query: " . $query);
-    error_log("Parameters: " . print_r($values, true));
-
-    $result = pg_query_params($dbconn, $query, $values);
-
-    if ($result && pg_affected_rows($result) > 0) {
-    } else {
-        throw new Exception('Erro ao atualizar registro: ' . pg_last_error($dbconn));
-    }
-    */
-} catch (Exception $e) {
-    echo json_encode(['error' => $e->getMessage()]);
 }
+
+
 
 ?>
