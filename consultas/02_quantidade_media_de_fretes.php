@@ -71,7 +71,6 @@
                 // Captura o valor do campo de pesquisa
                 const searchInput = $('#searchInput').val();
                 // Captura o tipo de pesquisa (estado ou cidade)
-                const searchType = $('input[name="searchType"]:checked').val();
 
                 if (!searchInput) {
                     alert('Por favor, informe o estado ou cidade.');
@@ -82,7 +81,7 @@
                 $.ajax({
                     url: '01_arrecadacao_frete_api.php',
                     type: 'POST',
-                    data: { input: searchInput, tipoPesquisa: searchType, post_type: "01" },
+                    data: { input: searchInput, post_type: "02" },
                     success: function(response) {
                         console.log('Resposta do servidor:', response);
 
