@@ -60,8 +60,6 @@
     <h1>Quais fretes os funcionários atenderam as pessoas jurídicas e quem
         eram os representantes destas empresas, no mes xx do ano yy</h1>
 
-
-
     <!-- Novo campo para selecionar Mês e Ano -->
     <label for="monthYearInput">Mês e Ano:</label>
     <input type="text" id="data" name="data" required>
@@ -82,7 +80,7 @@
 
                 // Realiza o POST para a página 01_arrecadacao_frete_api.php
                 $.ajax({
-                    url: '01_arrecadacao_frete_api.php',
+                    url: './query_api.php',
                     type: 'POST',
                     data: { input: searchInput, query_type: "03" },
                     success: function (response) {

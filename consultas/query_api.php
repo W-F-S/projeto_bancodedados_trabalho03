@@ -142,7 +142,6 @@ destino, por cidade de um estado informado por parâmetro.
             ];
         }
 
-
         $result = $result_list;
 
         echo json_encode(value: ['dados' => $result]);
@@ -151,9 +150,11 @@ destino, por cidade de um estado informado por parâmetro.
     }
 
 } elseif ($query_type == "03") {
-    /*Quais fretes os funcionários atenderam as pessoas jurídicas e quem
+    /*
+        Quais fretes os funcionários atenderam as pessoas jurídicas e quem
         eram os representantes destas empresas, no mes xx do ano yy ( a
-        informar) ( consistir xx/yy )*/
+        informar) ( consistir xx/yy )
+        */
     /**
      * funcionario_nome, frete_codigo, empresa, empresa_nome, empresa_representante, no mes xx do ano yy
      * 
@@ -162,7 +163,6 @@ destino, por cidade de um estado informado por parâmetro.
 
     $data = $_POST['input']; //cidade ou estado
     [$mes, $ano] = explode('/', $data);    
-
 
     //TODO: olhar documentacao depois
     $query = "
@@ -190,7 +190,7 @@ destino, por cidade de um estado informado por parâmetro.
             EXTRACT(MONTH FROM a.data_frete) = $mes AND
             EXTRACT(YEAR FROM a.data_frete) = $ano
     ";
-    
+
     $result_fretes = pg_query($dbconn, $query);
     
     if (!$result_fretes) {

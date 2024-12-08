@@ -79,7 +79,7 @@
 
                 // Realiza o POST para a página 01_arrecadacao_frete_api.php
                 $.ajax({
-                    url: '01_arrecadacao_frete_api.php',
+                    url: 'query_api.php',
                     type: 'POST',
                     data: { input: searchInput, tipoPesquisa: searchType, query_type: "02" },
                     success: function (response) {

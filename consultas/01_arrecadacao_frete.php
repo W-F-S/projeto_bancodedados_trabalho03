@@ -77,7 +77,7 @@
 
                 // Realiza o POST para a página 01_arrecadacao_frete_api.php
                 $.ajax({
-                    url: '01_arrecadacao_frete_api.php',
+                    url: 'query_api.php',
                     type: 'POST',
                     data: { input: searchInput, query_type: "01" },
                     success: function (response) {
@@ -115,11 +115,11 @@
 
                             // Monta a tabela completa
                             const tableHtml = `
-            <table style="margin: 20px auto; border-collapse: collapse; border: 1px solid #333;">
-                ${thead}
-                ${tbody}
-            </table>
-        `;
+                                <table style="margin: 20px auto; border-collapse: collapse; border: 1px solid #333;">
+                                    ${thead}
+                                    ${tbody}
+                                </table>
+                            `;
 
                             // Remove a tabela anterior se existir
                             $('table').remove();
