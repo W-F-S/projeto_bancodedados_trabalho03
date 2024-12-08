@@ -57,11 +57,10 @@
 </head>
 
 <body>
-    <h1>quantidade média de fretes</h1>
+    <h1> quantidade média de fretes de origem e destino</h1>
 
-
-    <label for="searchInput">Estado ou Cidade:</label>
-    <input type="text" id="searchInput" name="searchInput" placeholder="Informe o estado" required>
+    <label for="searchInput">Informe o estado:</label>
+    <input type="text" id="searchInput" name="searchInput" placeholder="Informe o estado ou cidade" required>
     <button id="sendRequest">Consultar</button>
 
     <script>
@@ -71,6 +70,7 @@
                 // Captura o valor do campo de pesquisa
                 const searchInput = $('#searchInput').val();
                 // Captura o tipo de pesquisa (estado ou cidade)
+                const searchType = $('input[name="searchType"]:checked').val();
 
                 if (!searchInput) {
                     alert('Por favor, informe o estado ou cidade.');
@@ -81,46 +81,59 @@
                 $.ajax({
                     url: '01_arrecadacao_frete_api.php',
                     type: 'POST',
-                    data: { input: searchInput, post_type: "02" },
-                    success: function(response) {
+                    data: { input: searchInput, tipoPesquisa: searchType, query_type: "02" },
+                    success: function (response) {
                         console.log('Resposta do servidor:', response);
 
-                        // Tenta fazer o parse do JSON (caso a resposta não esteja já em objeto)
                         let data = response;
                         if (typeof data === 'string') {
-                            data = JSON.parse(response);
+                            data = JSON.parse(data);
                         }
 
                         if (data && data.dados && data.dados.length > 0) {
-                            const info = data.dados[0];
+                            const rows = data.dados;
 
-                            // Cria a tabela dinamicamente
+                            // Obtém as chaves do primeiro objeto para criar o cabeçalho
+                            const keys = Object.keys(rows[0]);
+
+                            // Cria o cabeçalho da tabela dinamicamente
+                            let thead = '<thead><tr>';
+                            keys.forEach(key => {
+                                thead += `<th style="border: 1px solid #333; padding: 8px;">${key}</th>`;
+                            });
+                            thead += '</tr></thead>';
+
+                            // Cria o corpo da tabela
+                            let tbody = '<tbody>';
+                            rows.forEach(row => {
+                                tbody += '<tr>';
+                                keys.forEach(key => {
+                                    const valor = (row[key] !== null && row[key] !== undefined) ? row[key] : '';
+                                    tbody += `<td style="border: 1px solid #333; padding: 8px;">${valor}</td>`;
+                                });
+                                tbody += '</tr>';
+                            });
+                            tbody += '</tbody>';
+
+                            // Monta a tabela completa
                             const tableHtml = `
-                                <table style="margin: 20px auto; border-collapse: collapse; border: 1px solid #333;">
-                                    <thead>
-                                        <tr>
-                                            <th style="border: 1px solid #333; padding: 8px;">Total Quantidade Fretes</th>
-                                            <th style="border: 1px solid #333; padding: 8px;">Total Frete</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td style="border: 1px solid #333; padding: 8px;">${info.total_quantidade_fretes}</td>
-                                            <td style="border: 1px solid #333; padding: 8px;">${info.total_frete}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            `;
+            <table style="margin: 20px auto; border-collapse: collapse; border: 1px solid #333;">
+                ${thead}
+                ${tbody}
+            </table>
+        `;
 
-                            // Remove a tabela anterior se existir, para evitar duplicações
+                            // Remove a tabela anterior se existir
                             $('table').remove();
 
-                            // Anexa a tabela ao body
+                            // Anexa a nova tabela ao body
                             $('body').append(tableHtml);
+
                         } else {
                             console.warn('Nenhum dado encontrado.');
                         }
                     },
+
 
                     error: function (xhr, status, error) {
                         console.error('Erro:', error);

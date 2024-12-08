@@ -50,9 +50,8 @@
 
     <ul>
         <li><a href="./consultas/01_arrecadacao_frete.php">Consulta 1</a></li>
-        <li><a href="./consultas/02_html">Consulta 2</a></li>
-        <li><a href="./consultas/03_html">Consulta 3</a></li>
-        <li><a href="./consultas/.04_html">Consulta 4</a></li>
+        <li><a href="./consultas/02_quantidade_media_de_fretes.php">Consulta 2</a></li>
+        <li><a href="./consultas/03_funcionarios_atenderam_pessoas_juridicas.php">Consulta 3</a></li>
     </ul>
 
     <footer>
