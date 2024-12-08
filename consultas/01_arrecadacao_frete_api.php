@@ -1,5 +1,4 @@
 <?php
-
 header('Content-Type: application/json');
 
 /*
@@ -12,9 +11,6 @@ total-arrecadado;
 
 $dbconn = pg_connect("host=localhost dbname=bancodedados user=root password=1234")
     or die(json_encode(['error' => 'Não foi possível conectar: ' . pg_last_error()]));
-
-
-
 
 $query_type = $_POST['query_type'];
 
@@ -29,7 +25,6 @@ if ($query_type == "01") {
 
     try {
         // Define the search parameter (e.g., 'Goiânia')
-
         $var_pesquisa = ["%$input%"];
 
         $query = "SELECT * FROM cidade WHERE fk_uf LIKE $1";
@@ -37,7 +32,7 @@ if ($query_type == "01") {
         if (!$result) {
             throw new Exception('Erro ao realizar consulta: ' . pg_last_error($dbconn));
         }
-        // Fetch all rows from the result
+
         $data = pg_fetch_all($result);
 
         $var_pesquisa = [];
@@ -61,24 +56,21 @@ if ($query_type == "01") {
                     OR fk_cod_cidade_origem in (" . $cidade_pesquisa[0] . ")
                     ";
 
-
             $result = pg_query($dbconn, $query);
-
 
             if (!$result) {
                 echo "Erro no PostgreSQL: " . pg_last_error($dbconn);
             }
 
-
-
             if ($result != false) {
                 $result_tmp = (pg_fetch_all($result));
                 $result_tmp[0]["nomecidade"] = $cidade_pesquisa[1]; //inserindo manualmente o nome da cidade
-
+                if($result_tmp[0]["total_frete"] == ''){
+                    $result_tmp[0]["total_frete"] = 0;
+                }
                 $result_list[] = ($result_tmp[0]);
             }
         }
-
 
         $result = $result_list;
 
@@ -198,13 +190,7 @@ destino, por cidade de um estado informado por parâmetro.
             EXTRACT(MONTH FROM a.data_frete) = $mes AND
             EXTRACT(YEAR FROM a.data_frete) = $ano
     ";
-
-    /*
-    #WHERE
-    #    EXTRACT(MONTH FROM a.data_frete) = $mes AND
-    #    EXTRACT(MONTH FROM a.data_frete) = $ano
-    */
-
+    
     $result_fretes = pg_query($dbconn, $query);
     
     if (!$result_fretes) {

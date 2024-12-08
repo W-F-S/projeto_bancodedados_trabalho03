@@ -59,30 +59,19 @@
 <body>
     <h1>Arrecadação com Fretes</h1>
 
-    <div class="radio-group">
-        <label>
-            <input type="radio" name="searchType" value="estado" checked> Pesquisar por Estado
-        </label>
-        <label>
-            <input type="radio" name="searchType" value="cidade"> Pesquisar por Cidade
-        </label>
-    </div>
 
-    <label for="searchInput">Estado ou Cidade:</label>
-    <input type="text" id="searchInput" name="searchInput" placeholder="Informe o estado ou cidade" required>
+    <label for="searchInput">Estado:</label>
+    <input type="text" id="searchInput" name="searchInput" placeholder="Informe o estado" required>
     <button id="sendRequest">Consultar</button>
 
     <script>
         $(document).ready(function () {
-            // Evento para o botão
             $('#sendRequest').click(function () {
-                // Captura o valor do campo de pesquisa
+
                 const searchInput = $('#searchInput').val();
-                // Captura o tipo de pesquisa (estado ou cidade)
-                const searchType = $('input[name="searchType"]:checked').val();
 
                 if (!searchInput) {
-                    alert('Por favor, informe o estado ou cidade.');
+                    alert('Por favor, informe o estado.');
                     return;
                 }
 
@@ -90,7 +79,7 @@
                 $.ajax({
                     url: '01_arrecadacao_frete_api.php',
                     type: 'POST',
-                    data: { input: searchInput, tipoPesquisa: searchType, query_type: "01" },
+                    data: { input: searchInput, query_type: "01" },
                     success: function (response) {
                         console.log('Resposta do servidor:', response);
 
